@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { CandidateIdBadge } from "~~/components/CandidateIdBadge";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -55,7 +54,7 @@ export const HeaderMenuLinks = () => {
 };
 
 /**
- * Site header — candidate 32-bit ID stays top-left on every page.
+ * Site header
  */
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
@@ -69,7 +68,6 @@ export const Header = () => {
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-16 shrink-0 justify-between z-20 border-b-2 border-base-300 p-0 sm:px-2">
       <div className="navbar-start w-auto self-stretch">
-        <CandidateIdBadge />
         <details className="dropdown" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
             <Bars3Icon className="h-1/2" />

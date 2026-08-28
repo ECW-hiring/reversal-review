@@ -12,6 +12,7 @@ export type Finding = {
 };
 
 type Stored = {
+  candidateName: string;
   findings: Finding[];
   unchecked: string;
 };
@@ -28,6 +29,7 @@ const emptyFinding = (): Finding => ({
 });
 
 export const FindingsPanel = () => {
+  const [candidateName, setCandidateName] = useState("");
   const [findings, setFindings] = useState<Finding[]>([emptyFinding()]);
   const [unchecked, setUnchecked] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export const FindingsPanel = () => {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as Stored;
+      setCandidateName(parsed.candidateName ?? "");
       if (parsed.findings?.length) setFindings(parsed.findings);
       setUnchecked(parsed.unchecked ?? "");
     } catch {
@@ -44,21 +47,26 @@ export const FindingsPanel = () => {
     }
   }, []);
 
-  const persist = useCallback((nextFindings: Finding[], nextUnchecked: string) => {
+  const persist = useCallback((name: string, nextFindings: Finding[], nextUnchecked: string) => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ findings: nextFindings, unchecked: nextUnchecked }),
+      JSON.stringify({ candidateName: name, findings: nextFindings, unchecked: nextUnchecked }),
     );
   }, []);
 
   const updateFindings = (next: Finding[]) => {
     setFindings(next);
-    persist(next, unchecked);
+    persist(candidateName, next, unchecked);
   };
 
   const updateUnchecked = (value: string) => {
     setUnchecked(value);
-    persist(findings, value);
+    persist(candidateName, findings, value);
+  };
+
+  const updateCandidateName = (value: string) => {
+    setCandidateName(value);
+    persist(value, findings, unchecked);
   };
 
   const addFinding = () => updateFindings([...findings, emptyFinding()]);
@@ -82,12 +90,20 @@ export const FindingsPanel = () => {
   };
 
   const exportMarkdown = () => {
+    const slug =
+      candidateName
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "candidate";
     const lines = [
       "# Reversal Review — Findings Export",
       "",
+      candidateName.trim() ? `**Candidate:** ${candidateName.trim()}` : "",
+      candidateName.trim() ? "" : null,
       "## Ranked findings (most severe first)",
       "",
-    ];
+    ].filter((line): line is string => line !== null);
     findings.forEach((f, i) => {
       lines.push(
         `### ${i + 1}. ${f.title || "Untitled"}`,
@@ -103,7 +119,7 @@ export const FindingsPanel = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "reversal-review-findings.md";
+    a.download = `reversal-review-${slug}-findings.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -117,6 +133,14 @@ export const FindingsPanel = () => {
         </button>
       </div>
       <p className="text-sm opacity-70">Rank findings by severity — drag rows to reorder.</p>
+
+      <label className="text-sm font-medium">Your name (used in export filename)</label>
+      <input
+        className="input input-sm input-bordered w-full"
+        placeholder="Jane Doe"
+        value={candidateName}
+        onChange={e => updateCandidateName(e.target.value)}
+      />
 
       <div className="flex flex-col gap-4 max-h-[32rem] overflow-y-auto">
         {findings.map((f, index) => (

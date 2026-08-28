@@ -34,5 +34,3 @@ packages/foundry/broadcast
 packages/foundry/cache
 packages/foundry/out
 packages/foundry/lib
-packages/nextjs/data/*
-!packages/nextjs/data/.gitkeep

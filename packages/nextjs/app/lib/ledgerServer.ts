@@ -163,21 +163,38 @@ export async function scenarioReplayTwoOperators() {
 export async function scenarioPartialBatch() {
   const cfg = getDeployment();
   const goodId = transferId(`scenario-batch-good-${Date.now()}`);
-  const badId = transferId(`scenario-batch-missing-${Date.now()}`);
-  const amount = parseEther("15000");
+  const alreadyReversedId = transferId(`scenario-batch-already-${Date.now()}`);
+  const goodAmount = parseEther("15000");
+  const priorAmount = parseEther("12000");
+
   await wallet("deskNorth").writeContract({
     address: cfg.ledger,
     abi: entitlementLedgerAbi,
     functionName: "transfer",
-    args: [cfg.deskEast, amount, goodId],
+    args: [cfg.deskEast, goodAmount, goodId],
   });
+  await wallet("deskNorth").writeContract({
+    address: cfg.ledger,
+    abi: entitlementLedgerAbi,
+    functionName: "transfer",
+    args: [cfg.deskSouth, priorAmount, alreadyReversedId],
+  });
+
+  // operatorAlpha already reversed this id — batch will increment totalReversed then fail on replay.
+  await wallet("operatorAlpha").writeContract({
+    address: cfg.ledger,
+    abi: entitlementLedgerAbi,
+    functionName: "batchReverse",
+    args: [[alreadyReversedId]],
+  });
+
   const hash = await wallet("operatorAlpha").writeContract({
     address: cfg.ledger,
     abi: entitlementLedgerAbi,
     functionName: "batchReverse",
-    args: [[goodId, badId]],
+    args: [[goodId, alreadyReversedId]],
   });
-  return { hash, goodId, badId };
+  return { hash, goodId, alreadyReversedId };
 }
 
 export async function readPublicPosition(participant: `0x${string}`) {
