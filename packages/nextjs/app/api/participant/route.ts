@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getDeployment, readPublicPosition } from "~~/app/lib/ledgerServer";
 import { PARTICIPANTS } from "~~/app/lib/participants";
 
+function jsonSafe<T>(value: T): unknown {
+  return JSON.parse(JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v)));
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -19,13 +23,15 @@ export async function GET(request: Request) {
     const viewerAddr = viewer?.toLowerCase();
     const observerIsParticipant = PARTICIPANTS.some(p => p.address.toLowerCase() === viewerAddr);
 
-    return NextResponse.json({
-      participants: visible,
-      viewer,
-      note: observerIsParticipant
-        ? "Values below are readable from public chain views by any participant."
-        : "Select a participant to view public visibility.",
-    });
+    return NextResponse.json(
+      jsonSafe({
+        participants: visible,
+        viewer,
+        note: observerIsParticipant
+          ? "Values below are readable from public chain views by any participant."
+          : "Select a participant to view public visibility.",
+      }),
+    );
   } catch (error) {
     console.error("[participant-lens]", error);
     return NextResponse.json({ error: "Unavailable" }, { status: 503 });
