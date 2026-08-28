@@ -1,0 +1,9 @@
+{
+  "name": "@reversal/foundry",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "forge test",
+    "build": "forge build"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "reversal-review",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/foundry",
+    "packages/nextjs"
+  ],
+  "scripts": {
+    "start": "node scripts/dev.mjs",
+    "start:web": "npm run dev -w @reversal/nextjs",
+    "test": "npm run test -w @reversal/foundry",
+    "build": "npm run build -w @reversal/nextjs"
+  },
+  "engines": {
+    "node": ">=22.10.0",
+    "npm": ">=10.0.0"
+  }
+}

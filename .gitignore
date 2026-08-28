@@ -1,0 +1,38 @@
+# dependencies
+node_modules
+
+# yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# eslint
+.eslintcache
+
+# misc
+.DS_Store
+
+# IDE
+.vscode
+.idea
+
+# cli
+dist
+
+# reviewer-only (never ship to candidates)
+reviewer/
+
+# assessment kit
+ACTIVE_CHALLENGE.md
+packages/hardhat/test/.challenge-grade
+packages/hardhat/contracts/.challenge-grade
+packages/foundry/test/grade
+packages/foundry/broadcast
+packages/foundry/cache
+packages/foundry/out
+packages/foundry/lib
+packages/nextjs/data/*
+!packages/nextjs/data/.gitkeep

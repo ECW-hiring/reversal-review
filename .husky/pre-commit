@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+# Pre-commit hooks disabled for npm-based assessment repo.

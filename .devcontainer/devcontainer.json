@@ -1,0 +1,14 @@
+{
+  "name": "Reversal Review",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "npm install",
+  "forwardPorts": [3000, 8545],
+  "customizations": {
+    "vscode": {
+      "extensions": ["JuanBlanco.solidity", "esbenp.prettier-vscode"]
+    }
+  },
+  "remoteUser": "node"
+}
