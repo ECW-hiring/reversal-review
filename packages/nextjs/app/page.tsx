@@ -7,6 +7,7 @@ import { ParticipantLens } from "./components/ParticipantLens";
 import { ReconciliationView, type ReconciliationSummary } from "./components/ReconciliationView";
 import { ScenarioRunner } from "./components/ScenarioRunner";
 import type { LedgerEvent } from "~~/app/lib/ledgerscan";
+import { CandidateIdBadge } from "~~/components/CandidateIdBadge";
 
 const emptySummary = (): ReconciliationSummary => ({
   positionRows: [],
@@ -59,9 +60,12 @@ export default function ConsolePage() {
 
   return (
     <main className="min-h-screen bg-base-300 text-base-content">
-      <header className="border-b border-base-content/10 bg-base-100 px-4 py-3">
-        <h1 className="text-xl font-semibold tracking-tight">Reversal Review</h1>
-        <p className="text-sm opacity-70">Permissioned entitlement ledger · operator console</p>
+      <header className="border-b border-base-content/10 bg-base-100 px-4 py-3 flex items-start gap-4">
+        <CandidateIdBadge />
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Reversal Review</h1>
+          <p className="text-sm opacity-70">Permissioned entitlement ledger · operator console</p>
+        </div>
       </header>
 
       {error ? (

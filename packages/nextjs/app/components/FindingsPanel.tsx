@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { exportFindingsPdf } from "~~/app/lib/exportFindingsPdf";
+import { useCandidateId } from "~~/hooks/useCandidateId";
 
 export type Finding = {
   id: string;
@@ -29,6 +31,7 @@ const emptyFinding = (): Finding => ({
 });
 
 export const FindingsPanel = () => {
+  const { data: candidateId, error: idError } = useCandidateId();
   const [candidateName, setCandidateName] = useState("");
   const [findings, setFindings] = useState<Finding[]>([emptyFinding()]);
   const [unchecked, setUnchecked] = useState("");
@@ -89,50 +92,31 @@ export const FindingsPanel = () => {
     setDragId(null);
   };
 
-  const exportMarkdown = () => {
-    const slug =
-      candidateName
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "") || "candidate";
-    const lines = [
-      "# Reversal Review — Findings Export",
-      "",
-      candidateName.trim() ? `**Candidate:** ${candidateName.trim()}` : "",
-      candidateName.trim() ? "" : null,
-      "## Ranked findings (most severe first)",
-      "",
-    ].filter((line): line is string => line !== null);
-    findings.forEach((f, i) => {
-      lines.push(
-        `### ${i + 1}. ${f.title || "Untitled"}`,
-        `- **Severity:** ${f.severity}`,
-        `- **Location:** ${f.location}`,
-        `- **What breaks:** ${f.impact}`,
-        `- **How to confirm:** ${f.confirmation}`,
-        "",
-      );
+  const exportPdf = () => {
+    if (!candidateId) {
+      alert(idError ? "Candidate ID unavailable — refresh and try again." : "Loading candidate ID…");
+      return;
+    }
+    exportFindingsPdf({
+      candidateIdHex: candidateId.idHex,
+      candidateIdDecimal: candidateId.id,
+      candidateName,
+      findings,
+      unchecked,
     });
-    lines.push("## What I did not check, and why", "", unchecked || "_empty_", "");
-    const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `reversal-review-${slug}-findings.md`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
     <section className="bg-base-200 border border-base-300 rounded-lg p-4 flex flex-col gap-3">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Findings</h2>
-        <button type="button" className="btn btn-sm btn-primary" onClick={exportMarkdown}>
-          Export Markdown
+        <button type="button" className="btn btn-sm btn-primary" onClick={exportPdf} disabled={!candidateId}>
+          Export PDF
         </button>
       </div>
-      <p className="text-sm opacity-70">Rank findings by severity — drag rows to reorder.</p>
+      <p className="text-sm opacity-70">
+        Rank findings by severity — drag rows to reorder. PDF export includes your candidate ID at the top.
+      </p>
 
       <label className="text-sm font-medium">Your name (used in export filename)</label>
       <input
